@@ -25,14 +25,15 @@ def qurl(parser, token):
             name=None: remove all values of name
             name+=value: append a new value for name
             name-=value: remove the value of name with the value
+            name~=value: remove the value string from each value of name
             name++: increment value by one
             name--: decrement value by one
 
     Example::
 
-        {% qurl '/search?page=1&color=blue&color=green'
-                 order='name' page=None color+='red' color-='green' %}
-        Output: /search?color=blue&order=name&color=red
+        {% qurl '/search?page=1&color=blue&color=green&q=some+thing'
+         order='name' page=None color+='red' color-='green' q~='some' %}
+        Output: /search?color=blue&order=name&color=red&q=thing
 
         {% qurl request.get_full_path order='name' %}
     """
@@ -51,7 +52,7 @@ def qurl(parser, token):
 
     qs = []
     if len(bits):
-        kwarg_re = re.compile(r'(\w+)(\-=|\+=|=|\+\+|\-\-)(.*)')
+        kwarg_re = re.compile(r'(\w+)(\-=|\~=|\+=|=|\+\+|\-\-)(.*)')
         for bit in bits:
             match = kwarg_re.match(bit)
             if not match:
@@ -86,6 +87,8 @@ class QURLNode(Node):
                 render_qurl = render_qurl.add(name, value)
             elif op == '-=':
                 render_qurl = render_qurl.remove(name, value)
+            elif op == '~=':
+                render_qurl = render_qurl.replace(name, value)
             elif op == '=':
                 render_qurl = render_qurl.set(name, value)
             elif op == '++':

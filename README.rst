@@ -63,13 +63,14 @@ Tag Usage
             name=None: remove all values of name
             name+=value: append a new value for name
             name-=value: remove the value of name with the value
+            name~=value: remove the value string from each value of name
             name++: increment the value by one
             name--: decrement the value by one
 
     Example:
 
-        {% qurl '/search?page=1&color=blue&color=green' order='name' page=None color+='red' color-='green' %}
-        Output: /search?color=blue&order=name&color=red
+        {% qurl '/search?page=1&color=blue&color=green&q=some+thing' order='name' page=None color+='red' color-='green' q~='some' %}
+        Output: /search?color=blue&order=name&color=red&q=thing
 
         {% qurl request.get_full_path order='name' %}
 
@@ -84,6 +85,7 @@ Available methods are:
 * set: replace all values of name by one value, parameter is removed when value is None
 * add: append a new value for name
 * remove: remove the value of name with the value
+* replace: remove the value of name with the value
 * inc: increment the value by another value (optional, defaults to 1)
 * dec: decrement the value by another value (optional, defaults to 1)
 * get: build the url
@@ -97,8 +99,10 @@ Available methods are:
             .add('tags', 'django')\
             .add('tags', 'web')\
             .remove('tags', 'python')\
+            .add('q', 'some+thing')\
+            .replace('q', 'some')\
             .get()
-    http://www.sophilabs.co/?page=3&tags=django&tags=web
+    http://www.sophilabs.co/?page=3&tags=django&tags=web&q=thing
 
 
 Tests

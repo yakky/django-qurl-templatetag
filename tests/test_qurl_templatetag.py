@@ -30,6 +30,13 @@ class QUrlTemplateTagTestCase(TestCase):
         ).render(Context())
         self.assertEqual(out, 'http://sophilabs.com/?b=1')
 
+    def test_qurl_replace(self):
+        out = Template(
+            '{% load qurl %}'
+            '{% qurl "http://sophilabs.com/?a=some+thing" a~="some" %}'
+        ).render(Context())
+        self.assertEqual(out, 'http://sophilabs.com/?a=thing')
+
     def test_qurl_as(self):
         context = Context()
         Template(
@@ -100,6 +107,18 @@ class QurlTestCase(TestCase):
 
         qurl = qurl.remove('a', 3)
         self.assertEqual(qurl.get(), 'http://sophilabs.com/?a=1')
+
+    def test_replace(self):
+        qurl1 = Qurl('http://sophilabs.com/?q=some%2C+thing&q=other+thing')
+        qurl2 = Qurl('http://sophilabs.com/?q=some%2C+thing&q=other+thing')
+
+        qurl = qurl1.replace('q', 'some')
+        self.assertEqual(
+            qurl.get(), 'http://sophilabs.com/?q=%2C+thing&q=other+thing'
+        )
+
+        qurl = qurl2.replace('q', 'thing')
+        self.assertEqual(qurl.get(), 'http://sophilabs.com/?q=some%2C&q=other')
 
     def test_inc(self):
         qurl = Qurl('http://sophilabs.com/?a=1')

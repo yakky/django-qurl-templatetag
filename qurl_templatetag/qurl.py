@@ -18,8 +18,10 @@ class Qurl(object):
                 .add('tags', 'django')\
                 .add('tags', 'web')\
                 .remove('tags', 'python')\
+                .add('q', 'some+thing')\
+                .replace('q', 'some')\
                 .get()
-        http://www.sophilabs.co/?page=2&tags=django&tags=web
+        http://www.sophilabs.co/?page=2&tags=django&tags=web&q=thing
     """
 
     def __init__(self, url):
@@ -48,6 +50,15 @@ class Qurl(object):
         """ Remove a value from multiple value parameter. """
         clone = self._clone()
         clone._qsl = [qb for qb in self._qsl if qb != (name, str(value))]
+        return clone
+
+    def replace(self, name, value):
+        """ Remove value string from value parameter. """
+        clone = self._clone()
+        clone._qsl = [
+            (qb[0], qb[1].replace(value, '').strip(' +'))
+            for qb in self._qsl if qb[0] == name
+        ]
         return clone
 
     def inc(self, name, value=1):
